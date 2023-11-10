@@ -10,7 +10,7 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/download", (req, res) => {
   const videoUrl = req.query.url;
 
-  if (!videoUrl) res.status(400).send("No URL Provided");
+  if (!videoUrl) return res.status(400).send("No URL Provided");
 
   console.log(videoUrl);
 
