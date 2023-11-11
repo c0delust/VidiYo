@@ -2,6 +2,10 @@ import express from "express";
 import ytdl from "ytdl-core";
 import requestIp from "request-ip";
 import logger from "node-color-log";
+import dotenv from "dotenv";
+import axios from "axios";
+
+dotenv.config();
 
 const app = express();
 const port = 3000;
@@ -9,9 +13,19 @@ const port = 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/download", (req, res) => {
+const getClientInfo = async (req) => {
   var clientIp = requestIp.getClientIp(req);
-  logger.info(`Request from ${clientIp}`);
+  const API_URL = `http://ipinfo.io/${clientIp}?token=${process.env.IPINFO_TOKEN}`;
+
+  try {
+    await axios.get(API_URL).then((res) => {
+      logger.info(`Request from IP: ${clientIp} | City: ${res.data.city}`);
+    });
+  } catch (e) {}
+};
+
+app.get("/download", (req, res) => {
+  getClientInfo(req);
 
   const videoUrl = req.query.url;
 

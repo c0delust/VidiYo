@@ -111,13 +111,16 @@ class HomeScreen extends StatelessWidget {
     Get.defaultDialog(
       barrierDismissible: false,
       title: 'Downloading',
-      content: Obx(
-        () => LinearPercentIndicator(
-          lineHeight: 20.0,
-          percent: progress.value.round() / 100,
-          center: Text(progress.value.round().toString() + '%'),
-          barRadius: Radius.circular(10),
-          progressColor: primary,
+      content: WillPopScope(
+        onWillPop: () async => false,
+        child: Obx(
+          () => LinearPercentIndicator(
+            lineHeight: 20.0,
+            percent: progress.value.round() / 100,
+            center: Text(progress.value.round().toString() + '%'),
+            barRadius: Radius.circular(10),
+            progressColor: primary,
+          ),
         ),
       ),
       cancel: ElevatedButton(
