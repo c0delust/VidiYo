@@ -21,7 +21,9 @@ const getClientInfo = async (req) => {
     await axios.get(API_URL).then((res) => {
       logger.info(`Request from IP: ${clientIp} | City: ${res.data.city}`);
     });
-  } catch (e) {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 app.get("/download", (req, res) => {
