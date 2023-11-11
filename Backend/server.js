@@ -37,6 +37,7 @@ app.get("/download", (req, res) => {
     ytdl
       .getInfo(videoUrl, (err, info) => {
         if (err) {
+          print(err);
           return res.status(400).send("Error:", err);
         }
       })
@@ -45,6 +46,8 @@ app.get("/download", (req, res) => {
         const formatsList = [];
 
         const thumbnailUrl = `https://img.youtube.com/vi/${info.player_response.videoDetails.videoId}/mqdefault.jpg`;
+
+        console.log(info);
 
         info.formats.forEach((format) => {
           const {
