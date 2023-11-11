@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:http/http.dart' as http;
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -44,6 +45,8 @@ class HomeScreen extends StatelessWidget {
   }
 
   getInfo(String youtubeURL, context) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+
     bool isConnected = await checkInternetConnection(context);
 
     if (youtubeURL.isEmpty || !isConnected) {
@@ -73,7 +76,11 @@ class HomeScreen extends StatelessWidget {
   String getFileName(String fileName) {
     RegExp invalidChars = RegExp(r'[\/:*?"<>|]');
     String sanitizedFileName = fileName.replaceAll(invalidChars, '_');
-    return sanitizedFileName;
+    if (sanitizedFileName.length > 80) {
+      return sanitizedFileName.substring(0, 80);
+    } else {
+      return sanitizedFileName;
+    }
   }
 
   downloadVideo(dynamic video, context) async {
@@ -102,6 +109,8 @@ class HomeScreen extends StatelessWidget {
     var status = await Permission.storage.status;
     if (!status.isGranted) {
       await Permission.storage.request();
+      await Permission.storage.request();
+      await Permission.manageExternalStorage.request();
     }
     var url = video['url'];
 
@@ -111,16 +120,19 @@ class HomeScreen extends StatelessWidget {
     Get.defaultDialog(
       barrierDismissible: false,
       title: 'Downloading',
-      content: WillPopScope(
-        onWillPop: () async => false,
-        child: Obx(
-          () => LinearPercentIndicator(
-            lineHeight: 20.0,
-            percent: progress.value.round() / 100,
-            center: Text(progress.value.round().toString() + '%'),
-            barRadius: Radius.circular(10),
-            progressColor: primary,
+      onWillPop: () async => false,
+      content: Obx(
+        () => LinearPercentIndicator(
+          lineHeight: 25.0,
+          percent: progress.value.round() / 100,
+          center: Text(
+            progress.value.round().toString() + '%',
+            style: TextStyle(
+              color: progress.value.round() > 50 ? Colors.white : secondary,
+            ),
           ),
+          barRadius: Radius.circular(10),
+          progressColor: primary,
         ),
       ),
       cancel: ElevatedButton(
@@ -132,15 +144,22 @@ class HomeScreen extends StatelessWidget {
       ),
     );
 
-    await dio.download(url, savePath, onReceiveProgress: (received, total) {
-      if (total != -1) {
-        progress.value = (received / total * 100);
-      }
-    }).then((value) => {
-          ScaffoldMessenger.of(context).showSnackBar(snackBar),
-          print('File downloaded to: ${savePath}'),
-          Get.back(),
-        });
+    await dio
+        .download(url, savePath, cancelToken: cancelToken,
+            onReceiveProgress: (received, total) {
+          if (total != -1) {
+            progress.value = (received / total * 100);
+          }
+        })
+        .then((value) => {
+              ScaffoldMessenger.of(context).showSnackBar(snackBar),
+              print('File downloaded to: ${savePath}'),
+              Get.back(),
+            })
+        .onError((error, stackTrace) => {
+              print(error),
+              Get.back(),
+            });
   }
 
   @override
@@ -321,9 +340,31 @@ class HomeScreen extends StatelessWidget {
                                                     ),
                                                     child: Text('Download'),
                                                     onPressed: () async {
-                                                      downloadVideo(
-                                                          resolutionList[index],
-                                                          context);
+                                                      try {
+                                                        downloadVideo(
+                                                            resolutionList[
+                                                                index],
+                                                            context);
+                                                      } catch (e) {
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                                SnackBar(
+                                                          content: Text(
+                                                            'Something went wrong!',
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                          ),
+                                                          elevation: 10,
+                                                          behavior:
+                                                              SnackBarBehavior
+                                                                  .floating,
+                                                          margin:
+                                                              EdgeInsets.all(5),
+                                                        ));
+                                                      }
                                                     },
                                                   ),
                                                 ],
