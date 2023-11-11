@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -9,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:vidiyo/API.dart';
 import 'package:vidiyo/constants.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -19,31 +19,38 @@ class HomeScreen extends StatelessWidget {
   RxString title = ''.obs;
   RxString thumbnailUrl = ''.obs;
   RxDouble progress = 0.0.obs;
-  final String storagePath = '/storage/emulated/0/Download/YidiYoDownloads';
+  final String storagePath = '/storage/emulated/0/Download';
 
-  createDirectory() async {
-    var status = await Permission.storage.status;
-    if (!status.isGranted) {
-      await Permission.storage.request();
-    }
-    Directory newDirectory = Directory(storagePath);
-
-    if (await newDirectory.exists()) {
-      print('Directory already exists');
-    } else {
-      await newDirectory.create();
-      print('Directory created');
+  checkInternetConnection(context) async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        return true;
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+          'No Internet Connection!',
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        elevation: 10,
+        behavior: SnackBarBehavior.floating,
+        margin: EdgeInsets.all(5),
+      ));
+      return false;
     }
   }
 
   getInfo(String youtubeURL, context) async {
-    createDirectory();
+    bool isConnected = await checkInternetConnection(context);
 
-    if (youtubeURL.isEmpty) {
+    if (youtubeURL.isEmpty || !isConnected) {
       return;
     }
     isLoading.value = true;
-    var url = Uri.parse('http://192.168.29.82:3000/download?url=' + youtubeURL);
+    var url = Uri.parse(API + youtubeURL);
 
     try {
       var response = await http.get(url);
@@ -70,6 +77,25 @@ class HomeScreen extends StatelessWidget {
   }
 
   downloadVideo(dynamic video, context) async {
+    bool isConnected = await checkInternetConnection(context);
+
+    if (!isConnected) {
+      return;
+    }
+
+    final snackBar = SnackBar(
+      content: Text(
+        'Download Successfull!',
+        style: TextStyle(
+          color: Colors.white,
+        ),
+      ),
+      backgroundColor: Colors.green,
+      elevation: 10,
+      behavior: SnackBarBehavior.floating,
+      margin: EdgeInsets.all(5),
+    );
+
     CancelToken cancelToken = CancelToken();
 
     final dio = Dio();
@@ -108,6 +134,7 @@ class HomeScreen extends StatelessWidget {
         progress.value = (received / total * 100);
       }
     }).then((value) => {
+          ScaffoldMessenger.of(context).showSnackBar(snackBar),
           print('File downloaded to: ${savePath}'),
           Get.back(),
         });

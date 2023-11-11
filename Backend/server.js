@@ -1,5 +1,7 @@
 import express from "express";
 import ytdl from "ytdl-core";
+import requestIp from "request-ip";
+import logger from "node-color-log";
 
 const app = express();
 const port = 3000;
@@ -8,17 +10,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/download", (req, res) => {
+  var clientIp = requestIp.getClientIp(req);
+  logger.info(`Request from ${clientIp}`);
+
   const videoUrl = req.query.url;
 
   if (!videoUrl) return res.status(400).send("No URL Provided");
-
-  console.log(videoUrl);
 
   try {
     ytdl
       .getInfo(videoUrl, (err, info) => {
         if (err) {
-          res.status(400).send("Error:", err);
+          return res.status(400).send("Error:", err);
         }
       })
       .then((info) => {
@@ -59,9 +62,7 @@ app.get("/download", (req, res) => {
           }
         });
 
-        if (formats == []) res.status(400).send("No Formats Found");
-
-        // console.log(formatsList);
+        if (formats == []) return res.status(400).send("No Formats Found");
 
         res.status(200).json({
           title: info.videoDetails.title,
@@ -71,22 +72,22 @@ app.get("/download", (req, res) => {
       })
       .catch((err) => {
         if (err.message == "Not a YouTube domain") {
-          res.status(400).send("Invalid Domain");
+          return res.status(400).send("Invalid Domain");
         } else if (
           err.message.toString().includes("does not match expected format")
         ) {
           console.log(err.message);
-          res.status(400).send("Invalid ID");
+          return res.status(400).send("Invalid ID");
         } else res.status(400).send(err.message);
       });
   } catch (err) {
-    res.status(400).send("Error:", err);
+    return res.status(400).send("Error:", err);
   }
 });
 
-// app.post("/download", (req, res) => {
-//   res.status(200).send("download Working");
-// });
+app.post("/ping", (req, res) => {
+  return res.status(200).send("I'm Alive dude!");
+});
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
