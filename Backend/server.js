@@ -85,7 +85,7 @@ app.get("/download", (req, res) => {
   }
 });
 
-app.post("/ping", (req, res) => {
+app.get("/ping", (req, res) => {
   return res.status(200).send("I'm Alive dude!");
 });
 
