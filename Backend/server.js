@@ -34,6 +34,7 @@ app.get("/download", (req, res) => {
   if (!videoUrl) return res.status(400).send("No URL Provided");
 
   try {
+    console.log("in try block");
     ytdl
       .getInfo(videoUrl, (err, info) => {
         if (err) {
@@ -46,7 +47,7 @@ app.get("/download", (req, res) => {
         const formatsList = [];
 
         const thumbnailUrl = `https://img.youtube.com/vi/${info.player_response.videoDetails.videoId}/mqdefault.jpg`;
-
+        console.log(thumbnailUrl);
         console.log(info);
 
         info.formats.forEach((format) => {
