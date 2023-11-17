@@ -19,10 +19,10 @@ const getClientInfo = async (req) => {
 
   try {
     await axios.get(API_URL).then((res) => {
-      logger.info(`Request from IP: ${clientIp} | City: ${res.data.city}`);
+      console.log(`Request from IP: ${clientIp} | City: ${res.data.city}`);
     });
   } catch (e) {
-    logger.error(e);
+    console.log(e);
   }
 };
 
@@ -37,12 +37,11 @@ app.get("/download", async (req, res) => {
     ytdl
       .getInfo(videoUrl, (err, info) => {
         if (err) {
-          print(err);
+          console.log(err);
           return res.status(400).send("Error:", err);
         }
       })
       .then(async (info) => {
-        logger.info("Video Info Fetched");
         const formats = {};
         const formatsList = [];
 
@@ -85,7 +84,7 @@ app.get("/download", async (req, res) => {
         );
         if (formats == []) return res.status(400).send("No Formats Found");
 
-        logger.info(`${info.videoDetails.title}: ${videoUrl}`);
+        console.log(`${info.videoDetails.title}: ${videoUrl}`);
 
         res.status(200).json({
           title: info.videoDetails.title,
@@ -95,15 +94,15 @@ app.get("/download", async (req, res) => {
       })
       .catch((err) => {
         if (err.message == "Not a YouTube domain") {
-          logger.error("Not a YouTube domain");
+          console.log("Not a YouTube domain");
           return res.status(400).send("Invalid Domain");
         } else if (
           err.message.toString().includes("does not match expected format")
         ) {
-          logger.error("does not match expected format");
+          console.log("does not match expected format");
           return res.status(400).send("Invalid ID");
         } else {
-          logger.error("Untracked Error: " + err.message);
+          console.log("Untracked Error: " + err.message);
           res.status(400).send(err.message);
         }
       });
@@ -119,7 +118,7 @@ const getContentLength = async (url) => {
       (response.headers["content-length"] / (1024 * 1024)).toFixed(2) + " MB";
     return size;
   } catch (e) {
-    logger.error(e);
+    console.log(e);
     return "- MB";
   }
 };
