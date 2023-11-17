@@ -65,6 +65,19 @@ class HomeScreen extends StatelessWidget {
         thumbnailUrl.value = body['thumbnailUrl'];
         resolutionList.value = body['formats'];
         resolutionList.sort((a, b) => a['size'].compareTo(b['size']));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+            'Something went Wrong!',
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
+          elevation: 10,
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.all(5),
+        ));
+        print(response.body);
       }
     } catch (e) {
       isLoading.value = false;
