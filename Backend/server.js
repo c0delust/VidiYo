@@ -82,44 +82,9 @@ app.get("/download", async (req, res) => {
             }
           })
         );
-
-        // info.formats.forEach(async (format) => {
-        //   const {
-        //     qualityLabel,
-        //     bitrate,
-        //     url,
-        //     contentLength,
-        //     container,
-        //     hasAudio,
-        //   } = format;
-
-        //   if (qualityLabel != null && hasAudio) {
-        //     if (
-        //       !formats[qualityLabel] ||
-        //       bitrate > formats[qualityLabel].bitrate
-        //     ) {
-        //       formats[qualityLabel] = url;
-
-        //       const size = await getContentLength(url);
-
-        //       const value = {
-        //         qualityLabel: qualityLabel.slice(0, -1),
-        //         url: url,
-        //         size: contentLength
-        //           ? (contentLength / (1024 * 1024)).toFixed(2) + " MB"
-        //           : size,
-        //         extension: container,
-        //         hasAudio: hasAudio,
-        //       };
-
-        //       formatsList.push(value);
-        //     }
-        //   }
-        // });
-
-        console.log(formatsList);
-
         if (formats == []) return res.status(400).send("No Formats Found");
+
+        logger.info(`${info.videoDetails.title}: ${videoUrl}`);
 
         res.status(200).json({
           title: info.videoDetails.title,
