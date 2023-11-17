@@ -300,21 +300,23 @@ class HomeScreen extends StatelessWidget {
                                 ),
                               ),
                               Container(
-                                // width: double.infinity,
-                                height: 100,
+                                width: double.infinity,
                                 margin: EdgeInsets.only(
-                                  right: 90,
-                                  left: 90,
+                                  right: 50,
+                                  left: 50,
                                   bottom: 20,
                                   top: 10,
                                 ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: FancyShimmerImage(
-                                    // boxFit: BoxFit.cover,
-                                    imageUrl: thumbnailUrl.value,
+                                child: AspectRatio(
+                                  aspectRatio: 16 / 9,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: FancyShimmerImage(
+                                      // boxFit: BoxFit.cover,
+                                      imageUrl: thumbnailUrl.value,
+                                    ),
+                                    // child: Image.network(thumbnailUrl.value),
                                   ),
-                                  // child: Image.network(thumbnailUrl.value),
                                 ),
                               ),
                               Container(
