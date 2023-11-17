@@ -33,7 +33,7 @@ app.get("/download", async (req, res) => {
 
   if (!videoUrl) return res.status(400).send("No URL Provided");
 
-  ogger.info("Point 1");
+  logger.info("Point 1");
 
   try {
     ytdl
