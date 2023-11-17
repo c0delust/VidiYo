@@ -94,6 +94,7 @@ app.get("/download", async (req, res) => {
         });
       })
       .catch((err) => {
+        logger.error("Fetch Info Error: " + err);
         if (err.message == "Not a YouTube domain") {
           logger.error("Not a YouTube domain");
           return res.status(400).send("Invalid Domain");
