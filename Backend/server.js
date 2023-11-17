@@ -94,11 +94,12 @@ app.get("/download", async (req, res) => {
       })
       .catch((err) => {
         if (err.message == "Not a YouTube domain") {
+          logger.error("Not a YouTube domain");
           return res.status(400).send("Invalid Domain");
         } else if (
           err.message.toString().includes("does not match expected format")
         ) {
-          console.log(err.message);
+          logger.error("does not match expected format");
           return res.status(400).send("Invalid ID");
         } else res.status(400).send(err.message);
       });
