@@ -22,7 +22,7 @@ const getClientInfo = async (req) => {
       logger.info(`Request from IP: ${clientIp} | City: ${res.data.city}`);
     });
   } catch (e) {
-    console.log(e);
+    logger.error(e);
   }
 };
 
@@ -119,7 +119,7 @@ const getContentLength = async (url) => {
       (response.headers["content-length"] / (1024 * 1024)).toFixed(2) + " MB";
     return size;
   } catch (e) {
-    console.log(e);
+    logger.error(e);
     return "- MB";
   }
 };
