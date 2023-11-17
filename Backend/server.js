@@ -42,6 +42,7 @@ app.get("/download", async (req, res) => {
         }
       })
       .then(async (info) => {
+        logger.info("Video Info Fetched");
         const formats = {};
         const formatsList = [];
 
