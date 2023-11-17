@@ -1,4 +1,4 @@
-import express from "express";
+import express, { response } from "express";
 import ytdl from "ytdl-core";
 import requestIp from "request-ip";
 import logger from "node-color-log";
@@ -26,7 +26,7 @@ const getClientInfo = async (req) => {
   }
 };
 
-app.get("/download", (req, res) => {
+app.get("/download", async (req, res) => {
   getClientInfo(req);
 
   const videoUrl = req.query.url;
@@ -41,43 +41,83 @@ app.get("/download", (req, res) => {
           return res.status(400).send("Error:", err);
         }
       })
-      .then((info) => {
+      .then(async (info) => {
         const formats = {};
         const formatsList = [];
 
         const thumbnailUrl = `https://img.youtube.com/vi/${info.player_response.videoDetails.videoId}/mqdefault.jpg`;
 
-        info.formats.forEach((format) => {
-          const {
-            qualityLabel,
-            bitrate,
-            url,
-            contentLength,
-            container,
-            hasAudio,
-          } = format;
+        await Promise.all(
+          info.formats.map(async (format) => {
+            const {
+              qualityLabel,
+              bitrate,
+              url,
+              contentLength,
+              container,
+              hasAudio,
+            } = format;
 
-          if (qualityLabel != null && hasAudio) {
-            if (
-              !formats[qualityLabel] ||
-              bitrate > formats[qualityLabel].bitrate
-            ) {
-              formats[qualityLabel] = url;
+            if (qualityLabel != null && hasAudio) {
+              if (
+                !formats[qualityLabel] ||
+                bitrate > formats[qualityLabel].bitrate
+              ) {
+                formats[qualityLabel] = url;
 
-              const value = {
-                qualityLabel: qualityLabel.slice(0, -1),
-                url: url,
-                size: contentLength
-                  ? (contentLength / (1024 * 1024)).toFixed(2) + " MB"
-                  : "- MB",
-                extension: container,
-                hasAudio: hasAudio,
-              };
+                const size = await getContentLength(url);
 
-              formatsList.push(value);
+                const value = {
+                  qualityLabel: qualityLabel.slice(0, -1),
+                  url: url,
+                  size: contentLength
+                    ? (contentLength / (1024 * 1024)).toFixed(2) + " MB"
+                    : size,
+                  extension: container,
+                  hasAudio: hasAudio,
+                };
+
+                formatsList.push(value);
+              }
             }
-          }
-        });
+          })
+        );
+
+        // info.formats.forEach(async (format) => {
+        //   const {
+        //     qualityLabel,
+        //     bitrate,
+        //     url,
+        //     contentLength,
+        //     container,
+        //     hasAudio,
+        //   } = format;
+
+        //   if (qualityLabel != null && hasAudio) {
+        //     if (
+        //       !formats[qualityLabel] ||
+        //       bitrate > formats[qualityLabel].bitrate
+        //     ) {
+        //       formats[qualityLabel] = url;
+
+        //       const size = await getContentLength(url);
+
+        //       const value = {
+        //         qualityLabel: qualityLabel.slice(0, -1),
+        //         url: url,
+        //         size: contentLength
+        //           ? (contentLength / (1024 * 1024)).toFixed(2) + " MB"
+        //           : size,
+        //         extension: container,
+        //         hasAudio: hasAudio,
+        //       };
+
+        //       formatsList.push(value);
+        //     }
+        //   }
+        // });
+
+        console.log(formatsList);
 
         if (formats == []) return res.status(400).send("No Formats Found");
 
@@ -101,6 +141,18 @@ app.get("/download", (req, res) => {
     return res.status(400).send("Error:", err);
   }
 });
+
+const getContentLength = async (url) => {
+  try {
+    const response = await axios.head(url);
+    const size =
+      (response.headers["content-length"] / (1024 * 1024)).toFixed(2) + " MB";
+    return size;
+  } catch (e) {
+    console.log(e);
+    return "- MB";
+  }
+};
 
 app.get("/ping", (req, res) => {
   return res.status(200).send("I'm Alive dude!");
