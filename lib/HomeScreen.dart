@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 import 'package:dio/dio.dart';
+import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -265,123 +266,303 @@ class HomeScreen extends StatelessWidget {
                   height: 5,
                 ),
                 Obx(
-                  () => resolutionList.length > 0
-                      ? Column(
-                          children: [
-                            Container(
-                              margin: EdgeInsets.symmetric(
-                                  horizontal: 90, vertical: 20),
-                              child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.network(thumbnailUrl.value)),
-                            ),
-                            Container(
-                              margin: EdgeInsets.symmetric(
-                                horizontal: 10,
+                  () => AnimatedOpacity(
+                    opacity: resolutionList.isNotEmpty ? 1.0 : 0.0,
+                    duration: Duration(milliseconds: 800),
+                    curve: Curves.linearToEaseOut,
+                    child: resolutionList.isNotEmpty
+                        ? Column(
+                            children: [
+                              SizedBox(
+                                height: 10,
                               ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(20),
-                                child: BackdropFilter(
-                                  filter: ImageFilter.blur(
-                                      sigmaX: 10.0, sigmaY: 10.0),
-                                  child: Container(
-                                    // height: 400,
-                                    color: Colors.white.withOpacity(0.1),
-                                    padding: EdgeInsets.all(20),
-                                    child: Column(
-                                      children: [
-                                        ListView.builder(
-                                          shrinkWrap: true,
-                                          itemCount: resolutionList.length,
-                                          itemBuilder: (context, index) {
-                                            return Container(
-                                              margin: EdgeInsets.only(
-                                                bottom: 5,
-                                              ),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  Text(
-                                                    resolutionList[index]
-                                                            ['qualityLabel'] +
-                                                        'p',
-                                                    style: TextStyle(
-                                                      fontSize: 18,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                  SizedBox(
-                                                    width: 20,
-                                                  ),
-                                                  Text(
-                                                    resolutionList[index]
-                                                        ['size'],
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                  SizedBox(
-                                                    width: 20,
-                                                  ),
-                                                  OutlinedButton(
-                                                    style: OutlinedButton
-                                                        .styleFrom(
-                                                      side: BorderSide(
-                                                        color: Colors.green,
+                              Container(
+                                margin: EdgeInsets.symmetric(horizontal: 20),
+                                child: Text(
+                                  title.value,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                // width: double.infinity,
+                                height: 100,
+                                margin: EdgeInsets.only(
+                                  right: 90,
+                                  left: 90,
+                                  bottom: 20,
+                                  top: 10,
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: FancyShimmerImage(
+                                    // boxFit: BoxFit.cover,
+                                    imageUrl: thumbnailUrl.value,
+                                  ),
+                                  // child: Image.network(thumbnailUrl.value),
+                                ),
+                              ),
+                              Container(
+                                margin: EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(
+                                        sigmaX: 10.0, sigmaY: 10.0),
+                                    child: Container(
+                                      // height: 400,
+                                      color: Colors.white.withOpacity(0.1),
+                                      padding: EdgeInsets.all(20),
+                                      child: Column(
+                                        children: [
+                                          ListView.builder(
+                                            shrinkWrap: true,
+                                            itemCount: resolutionList.length,
+                                            itemBuilder: (context, index) {
+                                              return Container(
+                                                margin: EdgeInsets.only(
+                                                  bottom: 5,
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      resolutionList[index]
+                                                              ['qualityLabel'] +
+                                                          'p',
+                                                      style: TextStyle(
+                                                        fontSize: 18,
+                                                        color: Colors.white,
                                                       ),
-                                                      foregroundColor:
-                                                          Colors.green,
                                                     ),
-                                                    child: Text('Download'),
-                                                    onPressed: () async {
-                                                      try {
-                                                        downloadVideo(
-                                                            resolutionList[
-                                                                index],
-                                                            context);
-                                                      } catch (e) {
-                                                        ScaffoldMessenger.of(
-                                                                context)
-                                                            .showSnackBar(
-                                                                SnackBar(
-                                                          content: Text(
-                                                            'Something went wrong!',
-                                                            style: TextStyle(
-                                                              color:
-                                                                  Colors.white,
+                                                    SizedBox(
+                                                      width: 20,
+                                                    ),
+                                                    Text(
+                                                      resolutionList[index]
+                                                          ['size'],
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 20,
+                                                    ),
+                                                    OutlinedButton(
+                                                      style: OutlinedButton
+                                                          .styleFrom(
+                                                        side: BorderSide(
+                                                          color: Colors.green,
+                                                        ),
+                                                        foregroundColor:
+                                                            Colors.green,
+                                                      ),
+                                                      child: Text('Download'),
+                                                      onPressed: () async {
+                                                        try {
+                                                          downloadVideo(
+                                                              resolutionList[
+                                                                  index],
+                                                              context);
+                                                        } catch (e) {
+                                                          ScaffoldMessenger.of(
+                                                                  context)
+                                                              .showSnackBar(
+                                                                  SnackBar(
+                                                            content: Text(
+                                                              'Something went wrong!',
+                                                              style: TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
                                                             ),
-                                                          ),
-                                                          elevation: 10,
-                                                          behavior:
-                                                              SnackBarBehavior
-                                                                  .floating,
-                                                          margin:
-                                                              EdgeInsets.all(5),
-                                                        ));
-                                                      }
-                                                    },
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ],
+                                                            elevation: 10,
+                                                            behavior:
+                                                                SnackBarBehavior
+                                                                    .floating,
+                                                            margin:
+                                                                EdgeInsets.all(
+                                                                    5),
+                                                          ));
+                                                        }
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        )
-                      : Container(),
+                            ],
+                          )
+                        : Container(),
+                  ),
                 ),
+                // Obx(
+                //   () => AnimatedContainer(
+                //     height: resolutionList.isNotEmpty ? double.maxFinite : 0,
+                //     duration: Duration(seconds: 10),
+                //     curve: Curves.fastOutSlowIn,
+                //     child: resolutionList.isNotEmpty
+                //         ? ListView(
+                //             children: [
+                //               SizedBox(
+                //                 height: 10,
+                //               ),
+                //               Container(
+                //                 margin: EdgeInsets.symmetric(horizontal: 20),
+                //                 child: Text(
+                //                   title.value,
+                //                   style: TextStyle(
+                //                     color: Colors.white,
+                //                     fontSize: 20,
+                //                   ),
+                //                 ),
+                //               ),
+                //               Container(
+                //                 // width: double.infinity,
+                //                 height: 100,
+                //                 margin: EdgeInsets.only(
+                //                   right: 90,
+                //                   left: 90,
+                //                   bottom: 20,
+                //                   top: 10,
+                //                 ),
+                //                 child: ClipRRect(
+                //                   borderRadius: BorderRadius.circular(8),
+                //                   child: FancyShimmerImage(
+                //                     // boxFit: BoxFit.cover,
+                //                     imageUrl: thumbnailUrl.value,
+                //                   ),
+                //                   // child: Image.network(thumbnailUrl.value),
+                //                 ),
+                //               ),
+                //               Container(
+                //                 margin: EdgeInsets.symmetric(
+                //                   horizontal: 10,
+                //                 ),
+                //                 child: ClipRRect(
+                //                   borderRadius: BorderRadius.circular(20),
+                //                   child: BackdropFilter(
+                //                     filter: ImageFilter.blur(
+                //                         sigmaX: 10.0, sigmaY: 10.0),
+                //                     child: Container(
+                //                       // height: 400,
+                //                       color: Colors.white.withOpacity(0.1),
+                //                       padding: EdgeInsets.all(20),
+                //                       child: Column(
+                //                         children: [
+                //                           ListView.builder(
+                //                             shrinkWrap: true,
+                //                             itemCount: resolutionList.length,
+                //                             itemBuilder: (context, index) {
+                //                               return Container(
+                //                                 margin: EdgeInsets.only(
+                //                                   bottom: 5,
+                //                                 ),
+                //                                 child: Row(
+                //                                   mainAxisSize:
+                //                                       MainAxisSize.min,
+                //                                   mainAxisAlignment:
+                //                                       MainAxisAlignment
+                //                                           .spaceBetween,
+                //                                   crossAxisAlignment:
+                //                                       CrossAxisAlignment.center,
+                //                                   children: [
+                //                                     Text(
+                //                                       resolutionList[index]
+                //                                               ['qualityLabel'] +
+                //                                           'p',
+                //                                       style: TextStyle(
+                //                                         fontSize: 18,
+                //                                         color: Colors.white,
+                //                                       ),
+                //                                     ),
+                //                                     SizedBox(
+                //                                       width: 20,
+                //                                     ),
+                //                                     Text(
+                //                                       resolutionList[index]
+                //                                           ['size'],
+                //                                       style: TextStyle(
+                //                                         fontSize: 16,
+                //                                         color: Colors.white,
+                //                                       ),
+                //                                     ),
+                //                                     SizedBox(
+                //                                       width: 20,
+                //                                     ),
+                //                                     OutlinedButton(
+                //                                       style: OutlinedButton
+                //                                           .styleFrom(
+                //                                         side: BorderSide(
+                //                                           color: Colors.green,
+                //                                         ),
+                //                                         foregroundColor:
+                //                                             Colors.green,
+                //                                       ),
+                //                                       child: Text('Download'),
+                //                                       onPressed: () async {
+                //                                         try {
+                //                                           downloadVideo(
+                //                                               resolutionList[
+                //                                                   index],
+                //                                               context);
+                //                                         } catch (e) {
+                //                                           ScaffoldMessenger.of(
+                //                                                   context)
+                //                                               .showSnackBar(
+                //                                                   SnackBar(
+                //                                             content: Text(
+                //                                               'Something went wrong!',
+                //                                               style: TextStyle(
+                //                                                 color: Colors
+                //                                                     .white,
+                //                                               ),
+                //                                             ),
+                //                                             elevation: 10,
+                //                                             behavior:
+                //                                                 SnackBarBehavior
+                //                                                     .floating,
+                //                                             margin:
+                //                                                 EdgeInsets.all(
+                //                                                     5),
+                //                                           ));
+                //                                         }
+                //                                       },
+                //                                     ),
+                //                                   ],
+                //                                 ),
+                //                               );
+                //                             },
+                //                           ),
+                //                         ],
+                //                       ),
+                //                     ),
+                //                   ),
+                //                 ),
+                //               ),
+                //             ],
+                //           )
+                //         : Container(),
+                //   ),
+                // ),
                 SizedBox(
                   height: 20,
                 ),
