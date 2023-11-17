@@ -33,8 +33,6 @@ app.get("/download", async (req, res) => {
 
   if (!videoUrl) return res.status(400).send("No URL Provided");
 
-  logger.info("Point 1");
-
   try {
     ytdl
       .getInfo(videoUrl, (err, info) => {
@@ -96,7 +94,6 @@ app.get("/download", async (req, res) => {
         });
       })
       .catch((err) => {
-        logger.error("Fetch Info Error: " + err);
         if (err.message == "Not a YouTube domain") {
           logger.error("Not a YouTube domain");
           return res.status(400).send("Invalid Domain");
@@ -105,7 +102,10 @@ app.get("/download", async (req, res) => {
         ) {
           logger.error("does not match expected format");
           return res.status(400).send("Invalid ID");
-        } else res.status(400).send(err.message);
+        } else {
+          logger.error("Untracked Error: " + err.message);
+          res.status(400).send(err.message);
+        }
       });
   } catch (err) {
     return res.status(400).send("Error:", err);
